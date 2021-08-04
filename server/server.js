@@ -1,19 +1,11 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
-// PWAs want HTTPS!
-function checkHttps(request, response, next) {
-  // Check the protocol — if http, redirect to https.
-  if (request.get("X-Forwarded-Proto").indexOf("https") != -1) {
-    return next();
-  } else {
-    response.redirect("https://" + request.hostname + request.url);
-  }
-}
-
-app.all("*", checkHttps);
+let rawdata = fs.readFileSync(path.resolve(__dirname, "movies_metadata.json"));
+let student = JSON.parse(rawdata);
 
 // A test route to make sure the server is up.
 app.get("/api/ping", (request, response) => {
@@ -24,7 +16,33 @@ app.get("/api/ping", (request, response) => {
 // A mock route to return some data.
 app.get("/api/movies", (request, response) => {
   console.log("❇️ Received GET request to /api/movies");
-  response.json({ data: [{ id: 1, name: '1' }, { id: 2, name: '2' }] });
+  response.json({
+    data: student,
+  });
+});
+
+app.get("/api/list", (request, response) => {
+  console.log("❇️ Received GET request to /api/list");
+  var list = [];
+  student.forEach((element) => {
+    list.push({
+      id: element.id,
+      title: element.title,
+      tagline: element.tagline,
+      vote_average: element.vote_average,
+    });
+  });
+  response.json(list);
+});
+
+app.get("/api/list/:id", (request, response) => {
+  console.log("❇️ Received GET request to /api/list");
+  student.forEach((obj) => {
+    intId = parseInt(request.params.id);
+    if (obj.id === intId) {
+      response.json(obj);
+    }
+  });
 });
 
 // Express port-switching logic

@@ -1,35 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { makeStyles } from "@material-ui/core/styles";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
 
 function App() {
   const [movies, setMovies] = useState([]);
   useEffect(() => {
     async function getData() {
-      const response = await fetch('/api/movies');
+      const response = await fetch("/api/movies");
       const payload = await response.json();
       setMovies(payload.data);
     }
     getData();
   }, []);
+  const handleClick = (e) => {
+    console.log("clicked", e);
+  };
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and your changes will live-update automatically.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <p>Nice Movies:</p>
-        <p>{JSON.stringify(movies)}</p>
-        
+        <Grid container spacing={3}>
+          {movies?.map((v, k) => {
+            return (
+              <>
+                <Grid item xs={12} md={3}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h5" component="h2">
+                        {v.title}
+                      </Typography>
+                      <Typography color="textSecondary">{v.tagline}</Typography>
+                      <Typography variant="body2" component="p">
+                        Vote Average : {v.vote_average} /10
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small" onClick={() => handleClick(v.id)}>
+                        Get More Information
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              </>
+            );
+          })}
+        </Grid>
       </header>
     </div>
   );
